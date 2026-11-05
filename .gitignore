@@ -1,0 +1,57 @@
+# ==============================================================================
+# .gitignore - EA-291: HIL Autopilot ESP32 & X-Plane 9 (ITA)
+# ==============================================================================
+
+# 1) Materiais Didáticos, Relatórios e Referências Privadas
+Material ref/
+Material*/
+*.pdf
+*.PDF
+
+# 2) Simulador X-Plane e Imagens de Disco (Arquivos pesados e binários)
+XPlane/
+X-Plane*/
+*.iso
+*.ISO
+*.zip
+*.ZIP
+*.7z
+*.tar
+*.gz
+*.rar
+
+# 2) Logs de ensaios e telemetrias transitórias
+logs/*.csv
+!logs/.gitkeep
+
+# 3) Python (Caches, ambientes virtuais e bytecode)
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# 4) Microcontrolador / Firmware (PlatformIO, VSCode, Arduino)
+.pio/
+.vscode/
+*.hex
+*.bin
+*.elf
+*.o
+
+# 5) MATLAB / Simulink (Arquivos temporários, autosaves e compilações)
+*.asv
+*.m~
+slprj/
+*.slxc
+*.autosave
+
+# 6) Sistema Operacional e Arquivos do Explorer
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
