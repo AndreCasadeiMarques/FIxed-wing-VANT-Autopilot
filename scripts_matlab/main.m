@@ -136,13 +136,19 @@ switch cenario
         fprintf('\n--- [METRICAS: BATERIA DE DEGRAUS MULTI-DOF] ---\n');
         % 1) Degrau em Altitude (5s a 20s)
         idx_h = dados.time >= 5.0 & dados.time < 20.0;
-        m_h = calcula_metricas(dados.time(idx_h), dados.h(idx_h), dados.ref_h(idx_h), 'Degrau Altitude (+15m)', 'm');
+        if any(idx_h)
+            m_h = calcula_metricas(dados.time(idx_h), dados.h(idx_h), dados.ref_h(idx_h), 'Degrau Altitude (+15m)', 'm');
+        end
         % 2) Degrau em Velocidade (20s a 35s)
         idx_vt = dados.time >= 20.0 & dados.time < 35.0;
-        m_vt = calcula_metricas(dados.time(idx_vt), dados.VT(idx_vt), dados.ref_VT(idx_vt), 'Degrau Velocidade (+3m/s)', 'm/s');
+        if any(idx_vt)
+            m_vt = calcula_metricas(dados.time(idx_vt), dados.VT(idx_vt), dados.ref_VT(idx_vt), 'Degrau Velocidade (+3m/s)', 'm/s');
+        end
         % 3) Degrau em Rolamento (35s a 50s)
         idx_phi = dados.time >= 35.0 & dados.time < 50.0;
-        m_phi = calcula_metricas(dados.time(idx_phi), dados.phi(idx_phi) * 57.3, dados.ref_phi(idx_phi) * 57.3, 'Degrau Rolamento (+20 deg)', 'deg');
+        if any(idx_phi)
+            m_phi = calcula_metricas(dados.time(idx_phi), dados.phi(idx_phi) * 57.3, dados.ref_phi(idx_phi) * 57.3, 'Degrau Rolamento (+20 deg)', 'deg');
+        end
     case {'curva_coordenada', 'comparativo_ff'}
         m_h = calcula_metricas(dados.time, dados.h, dados.ref_h, 'Altitude em Curva', 'm');
         m_vt = calcula_metricas(dados.time, dados.VT, dados.ref_VT, 'Velocidade em Curva', 'm/s');

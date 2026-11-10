@@ -42,25 +42,27 @@ if ~exist('cenario', 'var') || isempty(cenario)
     cenario = 'comparativo_ff';
 end
 
-% Duração automática do ensaio conforme o cenário selecionado
-if ~exist('duracao', 'var') || isempty(duracao)
-    switch cenario
-        case {'bateria_degraus', 'degraus_sequenciais', 'step_battery'}
-            duracao = 65.0;
-        case {'periodo_curto', 'short_period'}
-            duracao = 15.0;
-        case {'fugoide', 'phugoid'}
-            duracao = 45.0;
-        case {'modo_espiral', 'spiral_mode'}
-            duracao = 35.0;
-        case {'modo_rolagem', 'rolling_mode'}
-            duracao = 20.0;
-        case {'dutch_roll', 'curva_coordenada', 'comparativo_ff', 'degrau_altitude', 'degrau_velocidade'}
-            duracao = 25.0;
-        otherwise
-            duracao = 25.0;
-    end
+% Duração padrão nominal de cada cenário
+switch cenario
+    case {'bateria_degraus', 'degraus_sequenciais', 'step_battery'}
+        duracao_padrao = 65.0;
+    case {'periodo_curto', 'short_period'}
+        duracao_padrao = 15.0;
+    case {'fugoide', 'phugoid'}
+        duracao_padrao = 45.0;
+    case {'modo_espiral', 'spiral_mode'}
+        duracao_padrao = 35.0;
+    case {'modo_rolagem', 'rolling_mode'}
+        duracao_padrao = 20.0;
+    otherwise
+        duracao_padrao = 25.0;
 end
+
+% Se a duração não foi definida OU pertencia ao cenário anterior, sincroniza com o cenário atual
+if ~exist('duracao', 'var') || isempty(duracao) || (exist('cenario_anterior', 'var') && ~strcmp(cenario_anterior, cenario))
+    duracao = duracao_padrao;
+end
+cenario_anterior = cenario;
 
 % Taxa de amostragem determinística da malha HIL [Hz]
 if ~exist('taxa_hz', 'var') || isempty(taxa_hz)

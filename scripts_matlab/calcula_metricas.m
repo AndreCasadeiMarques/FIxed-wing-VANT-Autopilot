@@ -12,6 +12,16 @@ function metricas = calcula_metricas(t, y, y_ref, nome_variavel, unidade)
 if nargin < 4, nome_variavel = 'Variavel'; end
 if nargin < 5, unidade = ''; end
 
+% Proteção contra vetor vazio ou insuficiente
+if isempty(t) || length(t) < 5
+    metricas.tr = NaN;
+    metricas.ts = NaN;
+    metricas.Mp = NaN;
+    metricas.ess = NaN;
+    fprintf('[AVISO] Dados insuficientes na janela temporal para calcular metricas de: %s\n', nome_variavel);
+    return;
+end
+
 % Detectar o instante do degrau
 dy_ref = diff(y_ref);
 idx_step = find(abs(dy_ref) > 0.05 * max(abs(dy_ref)), 1, 'first');
