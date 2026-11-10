@@ -79,7 +79,12 @@ class XPlaneUDP:
                 self.xpc_client.socket.settimeout(timeout)
                 res = self.xpc_client.getDREF("sim/time/total_running_time_sec")
                 self.xpc_client.socket.settimeout(old_to)
-                return bool(res and len(res) > 0 and len(res[0]) > 0 and res[0][0] > 0.0)
+                if not res or len(res) == 0:
+                    return False
+                val = res[0]
+                if isinstance(val, (list, tuple)):
+                    val = val[0] if len(val) > 0 else 0.0
+                return float(val) > 0.0
             except Exception:
                 return False
         elif self.mode == "native" and hasattr(self, "sock"):
