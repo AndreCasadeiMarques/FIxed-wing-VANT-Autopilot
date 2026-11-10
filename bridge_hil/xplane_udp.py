@@ -176,6 +176,7 @@ class XPlaneUDP:
     def init_trim_flight(self, alt_m: float = 100.0, vt_ms: float = 15.0):
         """Inicializa a aeronave em voo estabilizado no ponto de equilíbrio (Trim)."""
         import time
+        import math
         print(f"[XPlaneUDP] Posicionando aeronave em voo: Altitude={alt_m:.1f} m AGL, Velocidade={vt_ms:.1f} m/s...", flush=True)
         if self.mode == "xpc" and self.xpc_client is not None:
             try:
@@ -189,23 +190,38 @@ class XPlaneUDP:
                 ])
                 lat = pos_vals[0][0] if (pos_vals and len(pos_vals[0]) > 0 and pos_vals[0][0] != 0.0) else 47.25884
                 lon = pos_vals[1][0] if (pos_vals and len(pos_vals[1]) > 0 and pos_vals[1][0] != 0.0) else 11.33107
-                elev = pos_vals[2][0] if (pos_vals and len(pos_vals[2]) > 0) else 583.67
+                elev = pos_vals[2][0] if (pos_vals and len(pos_vals[2]) > 0 and pos_vals[2][0] != 0.0) else 583.67
                 y_agl = pos_vals[3][0] if (pos_vals and len(pos_vals[3]) > 0) else 0.0
                 psi = pos_vals[4][0] if (pos_vals and len(pos_vals[4]) > 0 and pos_vals[4][0] != 0.0) else 81.0
 
                 grnd_elev = max(0.0, elev - y_agl)
                 target_alt_msl = grnd_elev + alt_m
 
-                # 2) Posiciona no ar em altitude AGL com ângulo de arfagem de trim (-6.97 deg)
-                self.xpc_client.sendPOSI([lat, lon, target_alt_msl, -6.97, 0.0, psi, 1.0])
+                # 2) Posiciona no ar em altitude AGL com ângulo de arfagem de trim (-6.97 deg) e recolhe trem
+                self.xpc_client.sendPOSI([lat, lon, target_alt_msl, -6.97, 0.0, psi, 0.0])
                 time.sleep(0.05)
 
-                # 3) Desativa freio de estacionamento, ativa luz diurna e visão externa
+                # 3) Injeta os vetores de velocidade para sustentar o voo (X=Leste, Y=Cima, Z=Sul no X-Plane)
+                psi_rad = psi * DEG_TO_RAD
+                theta_rad = -6.97 * DEG_TO_RAD
+                vx = vt_ms * math.sin(psi_rad) * math.cos(theta_rad)
+                vy = vt_ms * math.sin(theta_rad)
+                vz = -vt_ms * math.cos(psi_rad) * math.cos(theta_rad)
+
+                self.xpc_client.sendDREF("sim/flightmodel/position/local_vx", vx)
+                self.xpc_client.sendDREF("sim/flightmodel/position/local_vy", vy)
+                self.xpc_client.sendDREF("sim/flightmodel/position/local_vz", vz)
+                self.xpc_client.sendDREF("sim/flightmodel/position/true_airspeed", vt_ms)
+                self.xpc_client.sendDREF("sim/flightmodel/position/groundspeed", vt_ms)
+
+                # 4) Desativa freio de estacionamento, ativa visão externa e tempo zulu
                 self.xpc_client.sendDREF("sim/cockpit2/controls/parking_brake_ratio", 0.0)
                 self.xpc_client.sendDREF("sim/graphics/view/view_type", 1018)  # Chase view
                 self.xpc_client.sendDREF("sim/time/zulu_time_sec", 43200.0)     # 12:00 Zulu
 
-                # 4) Envia comandos de trim para superfícies e manete
+                # 5) Inicializa motor em rotação de trim e envia comandos de superfícies
+                self.xpc_client.sendDREF("sim/flightmodel/engine/ENGN_thro", [0.4914] * 8)
+                self.xpc_client.sendDREF("sim/flightmodel/engine/ENGN_N1_", [75.0] * 8)
                 self.send_controls(0.0155, 0.4914, 0.0, 0.0)
                 time.sleep(0.1)
             except Exception as e:

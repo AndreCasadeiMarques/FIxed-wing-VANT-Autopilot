@@ -130,7 +130,7 @@ gains.ff.K_phi2thr   =  0.120;   % Compensador de arrasto induzido (Rolamento ->
 gains.ff.K_phi2rud   =  0.168;   % Compensador de guinada adversa (Rolamento -> Leme)
 
 %% =========================================================================
-%% 4) PADRONIZAÇÃO VISUAL DOS GRÁFICOS (Regra: Referência SEMPRE em Preto Pontilhado)
+%% 4) PADRONIZAÇÃO VISUAL DOS GRÁFICOS
 %% =========================================================================
 estilo.ref_color       = 'k';       % Cor preta para referências
 estilo.ref_style       = ':';       % Linha pontilhada estrita

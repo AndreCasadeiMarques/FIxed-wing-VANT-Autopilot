@@ -119,7 +119,16 @@ void execute_control_step() {
 
     // 2) Malha Longitudinal de Altitude (cascata: h -> theta_ref)
     float d_theta_ref = pid_alt.update(rx_pkt.ref_h, rx_pkt.h, 0.0f, dt);
-    float target_theta = TRIM_THETA + d_theta_ref;
+    
+    // Se houver comando explícito de arfagem injetado (ex: doublet no modo de período curto),
+    // segue diretamente a referência de theta; caso contrário, segue a malha cascata de altitude
+    float target_theta;
+    if (fabs(rx_pkt.ref_theta - TRIM_THETA) > 0.005f) {
+        target_theta = rx_pkt.ref_theta;
+        pid_alt.reset(); // Previne windup do integrador de altitude durante excitação direta de pitch
+    } else {
+        target_theta = TRIM_THETA + d_theta_ref;
+    }
 
     // 3) Malha Longitudinal de Arfagem (theta -> profundor com amortecedor Kq)
     float d_elev = pid_pitch.update(target_theta, rx_pkt.theta, rx_pkt.q, dt);
