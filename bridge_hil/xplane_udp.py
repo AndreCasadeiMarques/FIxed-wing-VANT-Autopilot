@@ -23,11 +23,15 @@ try:
     from xpc import XPlaneConnect
     HAS_XPC = True
 except ImportError:
-    HAS_XPC = False
+    try:
+        from bridge_hil.xpc import XPlaneConnect
+        HAS_XPC = True
+    except ImportError:
+        HAS_XPC = False
 
 
 class XPlaneUDP:
-    def __init__(self, mode: str = "native",
+    def __init__(self, mode: str = "xpc",
                  rx_ip: str = "0.0.0.0", rx_port: int = 49010,
                  tx_ip: str = "127.0.0.1", tx_port: int = 49000,
                  timeout: float = 0.05):
@@ -180,6 +184,9 @@ class XPlaneUDP:
         print(f"[XPlaneUDP] Posicionando aeronave em voo: Altitude={alt_m:.1f} m AGL, Velocidade={vt_ms:.1f} m/s...", flush=True)
         if self.mode == "xpc" and self.xpc_client is not None:
             try:
+                # 0) Pausa a física durante a injeção para evitar afundamento instantâneo
+                self.xpc_client.pauseSim(True)
+
                 # 1) Obter elevação do solo e posição atual
                 pos_vals = self.xpc_client.getDREFs([
                     "sim/flightmodel/position/latitude",
@@ -223,7 +230,10 @@ class XPlaneUDP:
                 self.xpc_client.sendDREF("sim/flightmodel/engine/ENGN_thro", [0.4914] * 8)
                 self.xpc_client.sendDREF("sim/flightmodel/engine/ENGN_N1_", [75.0] * 8)
                 self.send_controls(0.0155, 0.4914, 0.0, 0.0)
-                time.sleep(0.1)
+
+                # 6) Retoma a simulação com as velocidades e comandos já aplicados
+                self.xpc_client.pauseSim(False)
+                time.sleep(0.2)
             except Exception as e:
                 print(f"[XPlaneUDP] Aviso ao inicializar voo: {e}", flush=True)
         elif self.mode == "native" and hasattr(self, "sock"):

@@ -156,6 +156,7 @@ def run_bridge(
     u_ail = 0.0
     u_rud = 0.0
     dt_esp = dt_target
+    ground_recovered = False
 
     print("\nIniciando loop HIL... Pressione Ctrl+C para encerrar antecipadamente.\n")
 
@@ -182,6 +183,12 @@ def run_bridge(
                     sim_p = st["p"]
                     sim_q = st["q"]
                     sim_r = st["r"]
+
+                    # Salvaguarda: se a aeronave for detectada no solo após o início, reposiciona no ar a 100m
+                    if t_sim > 0.5 and sim_h < 3.0 and not ground_recovered:
+                        print(f"\n[X-Plane] Aeronave no solo detectada (h={sim_h:.1f}m)! Reposicionando em voo trimado a 100m...", flush=True)
+                        xp.init_trim_flight(alt_m=100.0, vt_ms=15.0)
+                        ground_recovered = True
             else:
                 # Simulação simplificada de resposta no dry-run
                 sim_h += (refs.ref_h - sim_h) * 0.05
