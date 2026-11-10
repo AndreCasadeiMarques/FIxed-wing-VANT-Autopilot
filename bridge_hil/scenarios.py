@@ -166,6 +166,38 @@ def get_references(scenario: str, t: float) -> ReferenceSignals:
         ref_theta = THETA0
         return ReferenceSignals(ref_h, ref_VT, ref_theta, ref_phi)
 
-    # 3.4) Equilíbrio Estacionário (Default)
+    # 3.4) Bateria de Degraus Sequenciais Multi-DoF (Altitude -> Velocidade -> Rolamento -> Retorno)
+    elif scen in ("bateria_degraus", "degraus_sequenciais", "step_battery", "degraus"):
+        ref_theta = THETA0
+
+        # Fase 0 (0 <= t < 5s): Trim nominal de voo reto nivelado (100m, 15m/s, 0 deg)
+        if t < 5.0:
+            ref_h = H0
+            ref_VT = VT0
+            ref_phi = 0.0
+        # Fase 1 (5 <= t < 20s): Degrau em Altitude (+15m -> 115m), velocidade nominal
+        elif 5.0 <= t < 20.0:
+            ref_h = H0 + 15.0
+            ref_VT = VT0
+            ref_phi = 0.0
+        # Fase 2 (20 <= t < 35s): Degrau em Velocidade (+3m/s -> 18m/s), mantendo 115m
+        elif 20.0 <= t < 35.0:
+            ref_h = H0 + 15.0
+            ref_VT = VT0 + 3.0
+            ref_phi = 0.0
+        # Fase 3 (35 <= t < 50s): Degrau em Rolamento (+20 deg), mantendo 115m e 18m/s (curva coordenada)
+        elif 35.0 <= t < 50.0:
+            ref_h = H0 + 15.0
+            ref_VT = VT0 + 3.0
+            ref_phi = 20.0 * DEG_TO_RAD
+        # Fase 4 (50 <= t <= 65s): Retorno a Asas Niveladas (0 deg), estabilizando em 115m e 18m/s
+        else:
+            ref_h = H0 + 15.0
+            ref_VT = VT0 + 3.0
+            ref_phi = 0.0
+
+        return ReferenceSignals(ref_h, ref_VT, ref_theta, ref_phi)
+
+    # 3.5) Equilíbrio Estacionário (Default)
     else:
         return ReferenceSignals(H0, VT0, THETA0, PHI0)

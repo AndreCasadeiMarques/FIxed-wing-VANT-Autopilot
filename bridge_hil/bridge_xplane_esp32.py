@@ -317,7 +317,8 @@ def main():
             "dutch_roll",
             "modo_espiral", "spiral_mode",
             "curva_coordenada", "comparativo_ff",
-            "degrau_altitude", "degrau_velocidade", "degrau_rolamento", "trim_livre"
+            "degrau_altitude", "degrau_velocidade", "degrau_rolamento", "trim_livre",
+            "bateria_degraus", "degraus_sequenciais", "step_battery"
         ],
         help="Cenario de teste para injetar referencias",
     )

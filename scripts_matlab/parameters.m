@@ -32,6 +32,7 @@ end
 %   'modo_espiral'     -> Modo Espiral: Movimento lento de evolução de proa e rolamento (duracao: 35s)
 %
 % --- CENÁRIOS OPERACIONAIS E FEEDFORWARD ---
+%   'bateria_degraus'  -> Bateria Multi-DoF de Degraus Sequenciais (Alt -> Vel -> Roll -> Retorno) (duracao: 65s)
 %   'comparativo_ff'   -> Bateria dupla: Feedforward ON vs. OFF de Adriano Bittar (duracao: 25s)
 %   'curva_coordenada' -> Curva coordenada única com Feedforward ativo (duracao: 25s)
 %   'degrau_altitude'  -> Resposta a degrau de altitude (+20m aos 5s) (duracao: 25s)
@@ -44,6 +45,8 @@ end
 % Duração automática do ensaio conforme o cenário selecionado
 if ~exist('duracao', 'var') || isempty(duracao)
     switch cenario
+        case {'bateria_degraus', 'degraus_sequenciais', 'step_battery'}
+            duracao = 65.0;
         case {'periodo_curto', 'short_period'}
             duracao = 15.0;
         case {'fugoide', 'phugoid'}

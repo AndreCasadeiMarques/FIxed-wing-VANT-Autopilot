@@ -132,6 +132,17 @@ switch cenario
         m_h = calcula_metricas(dados.time, dados.h, dados.ref_h, 'Altitude', 'm');
     case {'degrau_velocidade', 'speed_step'}
         m_vt = calcula_metricas(dados.time, dados.VT, dados.ref_VT, 'Velocidade VT', 'm/s');
+    case {'bateria_degraus', 'degraus_sequenciais', 'step_battery'}
+        fprintf('\n--- [METRICAS: BATERIA DE DEGRAUS MULTI-DOF] ---\n');
+        % 1) Degrau em Altitude (5s a 20s)
+        idx_h = dados.time >= 5.0 & dados.time < 20.0;
+        m_h = calcula_metricas(dados.time(idx_h), dados.h(idx_h), dados.ref_h(idx_h), 'Degrau Altitude (+15m)', 'm');
+        % 2) Degrau em Velocidade (20s a 35s)
+        idx_vt = dados.time >= 20.0 & dados.time < 35.0;
+        m_vt = calcula_metricas(dados.time(idx_vt), dados.VT(idx_vt), dados.ref_VT(idx_vt), 'Degrau Velocidade (+3m/s)', 'm/s');
+        % 3) Degrau em Rolamento (35s a 50s)
+        idx_phi = dados.time >= 35.0 & dados.time < 50.0;
+        m_phi = calcula_metricas(dados.time(idx_phi), dados.phi(idx_phi) * 57.3, dados.ref_phi(idx_phi) * 57.3, 'Degrau Rolamento (+20 deg)', 'deg');
     case {'curva_coordenada', 'comparativo_ff'}
         m_h = calcula_metricas(dados.time, dados.h, dados.ref_h, 'Altitude em Curva', 'm');
         m_vt = calcula_metricas(dados.time, dados.VT, dados.ref_VT, 'Velocidade em Curva', 'm/s');
@@ -139,7 +150,7 @@ end
 
 %% 5) Geração Automática dos Gráficos
 fprintf('\n-> Gerando graficos de desempenho em figures/...\n');
-plot_desempenho(log_principal, log_secundario, figures_dir);
+plot_desempenho(log_principal, log_secundario, figures_dir, cenario);
 
 fprintf('\n=================================================================\n');
 fprintf('   Ensaio HIL Concluído com Sucesso!                           \n');

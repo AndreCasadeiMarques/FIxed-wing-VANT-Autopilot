@@ -1,4 +1,4 @@
-function plot_desempenho(csv_path_on, csv_path_off, pasta_figuras)
+function plot_desempenho(csv_path_on, csv_path_off, pasta_figuras, cenario_nome)
 % PLOT_DESEMPENHO - Gera gráficos de análise de desempenho do Piloto Automático HIL
 % EA-291 - Pilotos Automáticos de VANTs (ITA)
 % Instituto Tecnológico de Aeronáutica - PG-EAM
@@ -15,6 +15,9 @@ end
 if nargin < 3 || isempty(pasta_figuras)
     pasta_figuras = fullfile(fileparts(mfilename('fullpath')), '..', 'figures');
 end
+if nargin < 4
+    cenario_nome = '';
+end
 if ~exist(pasta_figuras, 'dir')
     mkdir(pasta_figuras);
 end
@@ -26,6 +29,12 @@ end
 data_on = readtable(csv_path_on);
 
 RAD2DEG = 57.29577951308232;
+
+% Detecção automática de cenário de degraus
+is_bateria_degraus = strcmp(cenario_nome, 'bateria_degraus') || ...
+                     strcmp(cenario_nome, 'degraus_sequenciais') || ...
+                     strcmp(cenario_nome, 'step_battery') || ...
+                     (max(data_on.time) >= 55.0 && any(data_on.ref_h > 110));
 
 % Configuração visual global para artigos/relatórios ITA
 set(0, 'defaultAxesFontSize', 10);
@@ -46,6 +55,12 @@ subplot(4, 1, 1);
 plot(data_on.time, data_on.ref_h, SPEC_REF, 'LineWidth', WIDTH_REF, 'DisplayName', 'h_{ref} (Referencia)');
 hold on;
 plot(data_on.time, data_on.h, 'b-', 'LineWidth', 1.6, 'DisplayName', 'h (X-Plane)');
+if is_bateria_degraus
+    xline(5.0, ':', '\Deltah (+15m)', 'Color', [0.4 0.4 0.4], 'LabelVerticalAlignment', 'bottom');
+    xline(20.0, ':', '\DeltaV_T (+3m/s)', 'Color', [0.4 0.4 0.4], 'LabelVerticalAlignment', 'bottom');
+    xline(35.0, ':', '\Delta\phi (+20^\circ)', 'Color', [0.4 0.4 0.4], 'LabelVerticalAlignment', 'bottom');
+    xline(50.0, ':', 'Retorno \phi', 'Color', [0.4 0.4 0.4], 'LabelVerticalAlignment', 'bottom');
+end
 grid on;
 ylabel('Altitude [m]');
 title('Desempenho Longitudinal - Rastreamento e Estabilidade');
@@ -56,6 +71,12 @@ subplot(4, 1, 2);
 plot(data_on.time, data_on.ref_VT, SPEC_REF, 'LineWidth', WIDTH_REF, 'DisplayName', 'V_{Tr} (Referencia)');
 hold on;
 plot(data_on.time, data_on.VT, 'b-', 'LineWidth', 1.6, 'DisplayName', 'V_T (X-Plane)');
+if is_bateria_degraus
+    xline(5.0, ':', 'Color', [0.6 0.6 0.6], 'LineWidth', 1.0, 'HandleVisibility', 'off');
+    xline(20.0, ':', 'Color', [0.6 0.6 0.6], 'LineWidth', 1.0, 'HandleVisibility', 'off');
+    xline(35.0, ':', 'Color', [0.6 0.6 0.6], 'LineWidth', 1.0, 'HandleVisibility', 'off');
+    xline(50.0, ':', 'Color', [0.6 0.6 0.6], 'LineWidth', 1.0, 'HandleVisibility', 'off');
+end
 grid on;
 ylabel('Velocidade [m/s]');
 legend('Location', 'best');
@@ -66,6 +87,12 @@ plot(data_on.time, data_on.ref_theta * RAD2DEG, SPEC_REF, 'LineWidth', WIDTH_REF
 hold on;
 plot(data_on.time, data_on.theta * RAD2DEG, 'b-', 'LineWidth', 1.6, 'DisplayName', '\theta (X-Plane)');
 plot(data_on.time, data_on.q * RAD2DEG, 'm--', 'LineWidth', 1.2, 'DisplayName', 'q [deg/s]');
+if is_bateria_degraus
+    xline(5.0, ':', 'Color', [0.6 0.6 0.6], 'LineWidth', 1.0, 'HandleVisibility', 'off');
+    xline(20.0, ':', 'Color', [0.6 0.6 0.6], 'LineWidth', 1.0, 'HandleVisibility', 'off');
+    xline(35.0, ':', 'Color', [0.6 0.6 0.6], 'LineWidth', 1.0, 'HandleVisibility', 'off');
+    xline(50.0, ':', 'Color', [0.6 0.6 0.6], 'LineWidth', 1.0, 'HandleVisibility', 'off');
+end
 grid on;
 ylabel('Arfagem [deg]');
 legend('Location', 'best');
@@ -78,6 +105,12 @@ plot(data_on.time, data_on.delta_T, 'Color', [0.85 0.33 0.1], 'LineWidth', 1.5, 
 yline(1.0, ':', 'Color', [0.6 0.6 0.6], 'LineWidth', 1.0, 'HandleVisibility', 'off');
 yline(-1.0, ':', 'Color', [0.6 0.6 0.6], 'LineWidth', 1.0, 'HandleVisibility', 'off');
 yline(0.0, ':', 'Color', [0.6 0.6 0.6], 'LineWidth', 1.0, 'HandleVisibility', 'off');
+if is_bateria_degraus
+    xline(5.0, ':', 'Color', [0.6 0.6 0.6], 'LineWidth', 1.0, 'HandleVisibility', 'off');
+    xline(20.0, ':', 'Color', [0.6 0.6 0.6], 'LineWidth', 1.0, 'HandleVisibility', 'off');
+    xline(35.0, ':', 'Color', [0.6 0.6 0.6], 'LineWidth', 1.0, 'HandleVisibility', 'off');
+    xline(50.0, ':', 'Color', [0.6 0.6 0.6], 'LineWidth', 1.0, 'HandleVisibility', 'off');
+end
 grid on;
 xlabel('Tempo [s]');
 ylabel('Comando [-]');
@@ -100,6 +133,10 @@ plot(data_on.time, data_on.ref_phi * RAD2DEG, SPEC_REF, 'LineWidth', WIDTH_REF, 
 hold on;
 plot(data_on.time, data_on.phi * RAD2DEG, 'b-', 'LineWidth', 1.6, 'DisplayName', '\phi (X-Plane)');
 plot(data_on.time, data_on.psi * RAD2DEG, 'Color', [0.2 0.6 0.2], 'LineStyle', '-.', 'LineWidth', 1.4, 'DisplayName', '\psi (Rumo)');
+if is_bateria_degraus
+    xline(35.0, ':', 'Degrau \phi (+20^\circ)', 'Color', [0.4 0.4 0.4], 'LabelVerticalAlignment', 'bottom');
+    xline(50.0, ':', 'Retorno Asas Niveladas', 'Color', [0.4 0.4 0.4], 'LabelVerticalAlignment', 'bottom');
+end
 grid on;
 ylabel('Angulos [deg]');
 title('Desempenho Latero-Direcional - Rolamento e Guinada');
@@ -110,6 +147,10 @@ subplot(3, 1, 2);
 plot(data_on.time, data_on.p * RAD2DEG, 'b-', 'LineWidth', 1.5, 'DisplayName', 'p (roll rate) [deg/s]');
 hold on;
 plot(data_on.time, data_on.r * RAD2DEG, 'r-', 'LineWidth', 1.5, 'DisplayName', 'r (yaw rate) [deg/s]');
+if is_bateria_degraus
+    xline(35.0, ':', 'Color', [0.6 0.6 0.6], 'LineWidth', 1.0, 'HandleVisibility', 'off');
+    xline(50.0, ':', 'Color', [0.6 0.6 0.6], 'LineWidth', 1.0, 'HandleVisibility', 'off');
+end
 grid on;
 ylabel('Taxas [deg/s]');
 legend('Location', 'best');
@@ -122,6 +163,10 @@ plot(data_on.time, data_on.delta_r, 'r-', 'LineWidth', 1.5, 'DisplayName', 'Leme
 yline(1.0, ':', 'Color', [0.6 0.6 0.6], 'LineWidth', 1.0, 'HandleVisibility', 'off');
 yline(-1.0, ':', 'Color', [0.6 0.6 0.6], 'LineWidth', 1.0, 'HandleVisibility', 'off');
 yline(0.0, ':', 'Color', [0.6 0.6 0.6], 'LineWidth', 1.0, 'HandleVisibility', 'off');
+if is_bateria_degraus
+    xline(35.0, ':', 'Color', [0.6 0.6 0.6], 'LineWidth', 1.0, 'HandleVisibility', 'off');
+    xline(50.0, ':', 'Color', [0.6 0.6 0.6], 'LineWidth', 1.0, 'HandleVisibility', 'off');
+end
 grid on;
 xlabel('Tempo [s]');
 ylabel('Comando [-]');
@@ -134,9 +179,10 @@ saveas(fig2, fig2_path);
 fprintf('[OK] Grafico latero-direcional salvo em: %s\n', fig2_path);
 
 %% =========================================================================
-%% FIGURA 3: Comparativo Feedforward (Adriano Bittar) - Se fornecido
+%% FIGURA 3: Comparativo Feedforward OU Diagnóstico HIL e Qualidade do Controle
 %% =========================================================================
 if ~isempty(csv_path_off) && exist(csv_path_off, 'file')
+    % Caso A: Comparativo FeedForward de Adriano Bittar (ON vs OFF)
     data_off = readtable(csv_path_off);
 
     fig3 = figure('Name', 'Comparativo Feedforward Bittar', 'Color', 'w', 'Position', [200, 200, 950, 750]);
@@ -177,6 +223,64 @@ if ~isempty(csv_path_off) && exist(csv_path_off, 'file')
     fig3_path = fullfile(pasta_figuras, 'fig3_comparativo_feedforward_bittar.png');
     saveas(fig3, fig3_path);
     fprintf('[OK] Grafico comparativo de Feedforward salvo em: %s\n', fig3_path);
+else
+    % Caso B: Diagnóstico HIL e Rastreamento / Resposta aos Degraus Multi-DoF
+    fig3 = figure('Name', 'Diagnostico HIL e Rastreamento Multi-DoF', 'Color', 'w', 'Position', [200, 200, 950, 750]);
+
+    % Subplot 1: Erros de Rastreamento (Altitude e Velocidade)
+    subplot(3, 1, 1);
+    err_h = data_on.ref_h - data_on.h;
+    err_vt = data_on.ref_VT - data_on.VT;
+    yyaxis left;
+    plot(data_on.time, err_h, 'b-', 'LineWidth', 1.5, 'DisplayName', 'e_h = h_{ref} - h [m]');
+    ylabel('Erro Altitude [m]');
+    grid on;
+    yyaxis right;
+    plot(data_on.time, err_vt, 'Color', [0.85 0.33 0.1], 'LineWidth', 1.5, 'DisplayName', 'e_{VT} = V_{T,ref} - V_T [m/s]');
+    ylabel('Erro Velocidade [m/s]');
+    title('Diagnostico HIL: Erros de Rastreamento em Regime Transitorio');
+    if is_bateria_degraus
+        xline(5.0, ':', '\Deltah (+15m)', 'Color', [0.4 0.4 0.4], 'LabelVerticalAlignment', 'bottom');
+        xline(20.0, ':', '\DeltaV_T (+3m/s)', 'Color', [0.4 0.4 0.4], 'LabelVerticalAlignment', 'bottom');
+        xline(35.0, ':', '\Delta\phi (+20^\circ)', 'Color', [0.4 0.4 0.4], 'LabelVerticalAlignment', 'bottom');
+        xline(50.0, ':', 'Retorno \phi', 'Color', [0.4 0.4 0.4], 'LabelVerticalAlignment', 'bottom');
+    end
+    legend('Location', 'best');
+
+    % Subplot 2: Erro de Rolamento e Acoplamento em Curva
+    subplot(3, 1, 2);
+    err_phi = (data_on.ref_phi - data_on.phi) * RAD2DEG;
+    plot(data_on.time, err_phi, 'Color', [0.49 0.18 0.56], 'LineWidth', 1.5, 'DisplayName', 'e_\phi = \phi_{ref} - \phi [deg]');
+    hold on;
+    yline(0.0, ':', 'Color', [0.6 0.6 0.6], 'LineWidth', 1.0, 'HandleVisibility', 'off');
+    if is_bateria_degraus
+        xline(5.0, ':', 'Color', [0.6 0.6 0.6], 'LineWidth', 1.0, 'HandleVisibility', 'off');
+        xline(20.0, ':', 'Color', [0.6 0.6 0.6], 'LineWidth', 1.0, 'HandleVisibility', 'off');
+        xline(35.0, ':', 'Color', [0.6 0.6 0.6], 'LineWidth', 1.0, 'HandleVisibility', 'off');
+        xline(50.0, ':', 'Color', [0.6 0.6 0.6], 'LineWidth', 1.0, 'HandleVisibility', 'off');
+    end
+    grid on;
+    ylabel('Erro Rolamento [deg]');
+    title('Erro de Atitude Latero-Direcional');
+    legend('Location', 'best');
+
+    % Subplot 3: Determinismo Temporal da Malha HIL (Taxa de Amostragem do ESP32)
+    subplot(3, 1, 3);
+    dt_ms = data_on.dt_loop * 1000;
+    plot(data_on.time, dt_ms, 'Color', [0.1 0.6 0.3], 'LineWidth', 1.2, 'DisplayName', 'dt_{ESP32} [ms]');
+    hold on;
+    yline(20.0, 'r--', 'Alvo: 20 ms (50 Hz)', 'LineWidth', 1.5);
+    grid on;
+    xlabel('Tempo [s]');
+    ylabel('Periodo [ms]');
+    ylim([max(0, min(dt_ms) - 5), max(30, max(dt_ms) + 5)]);
+    title('Determinismo Temporal da Malha HIL (Frequencia Alvo: 50 Hz)');
+    legend('Location', 'best');
+
+    % Salvar Figura 3
+    fig3_path = fullfile(pasta_figuras, 'fig3_diagnostico_rastreamento_hil.png');
+    saveas(fig3, fig3_path);
+    fprintf('[OK] Grafico de diagnostico e rastreamento salvo em: %s\n', fig3_path);
 end
 
 end
