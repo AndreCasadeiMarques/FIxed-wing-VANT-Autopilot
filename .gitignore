@@ -2,9 +2,13 @@
 # .gitignore - EA-291: HIL Autopilot ESP32 & X-Plane 9 (ITA)
 # ==============================================================================
 
-# 1) Materiais Didáticos, Relatórios e Referências Privadas
+# 1) Materiais Didáticos, Relatórios, Simulink e Referências Privadas
 Material ref/
 Material*/
+relatorio_trab2/
+simulink_control/
+figures/simulink/
+logs/*.mat
 *.pdf
 *.PDF
 
